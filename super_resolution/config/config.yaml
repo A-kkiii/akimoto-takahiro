@@ -55,7 +55,7 @@ batch_size:
 custom:
   jhtdb:
     n_train: 8
-    n_valid: 16
+    n_valid: 4
     domain_size: 128
     access_token: "edu.jhu.pha.turbulence.testing-201311" #Replace with your own token here
 
