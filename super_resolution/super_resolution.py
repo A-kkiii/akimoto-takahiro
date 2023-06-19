@@ -297,7 +297,7 @@ class SuperResolutionValidator(GridValidator):
             writer.add_scalar("val/" + name + "/" + k, loss, step, new_style=True)
 
 
-@modulus.sym.main(config_path="conf", config_name="config")
+@modulus.main(config_path="conf", config_name="config")
 def run(cfg: ModulusConfig) -> None:
     # load jhtdb datasets
     invar, outvar = make_jhtdb_dataset(
