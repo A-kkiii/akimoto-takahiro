@@ -18,22 +18,22 @@ import numpy as np
 
 from typing import List, Dict, Union
 
-import modulus.sym
-from modulus.sym.hydra import to_absolute_path, instantiate_arch
+import modulus
+from modulus.hydra import to_absolute_path, instantiate_arch
 
-import modulus.sym
-from modulus.sym.hydra import to_absolute_path, instantiate_arch, ModulusConfig
-from modulus.sym.distributed import DistributedManager
-from modulus.sym.solver import Solver
-from modulus.sym.domain import Domain
-from modulus.sym.domain.constraint import Constraint
-from modulus.sym.domain.validator import GridValidator
+import modulus
+from modulus.hydra import to_absolute_path, instantiate_arch, ModulusConfig
+from modulus.distributed import DistributedManager
+from modulus.solver import Solver
+from modulus.domain import Domain
+from modulus.domain.constraint import Constraint
+from modulus.domain.validator import GridValidator
 
-from modulus.sym.dataset import DictGridDataset
-from modulus.sym.loss import PointwiseLossNorm
-from modulus.sym.key import Key
-from modulus.sym.node import Node
-from modulus.sym.utils.io import grid_to_vtk
+from modulus.dataset import DictGridDataset
+from modulus.loss import PointwiseLossNorm
+from modulus.key import Key
+from modulus.node import Node
+from modulus.utils.io import grid_to_vtk
 
 from jhtdb_utils import make_jhtdb_dataset
 from ops import FlowOps
@@ -297,7 +297,7 @@ class SuperResolutionValidator(GridValidator):
             writer.add_scalar("val/" + name + "/" + k, loss, step, new_style=True)
 
 
-@modulus.sym.main(config_path="conf", config_name="config")
+@modulus.main(config_path="conf", config_name="config")
 def run(cfg: ModulusConfig) -> None:
     # load jhtdb datasets
     invar, outvar = make_jhtdb_dataset(
