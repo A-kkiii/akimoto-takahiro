@@ -19,7 +19,7 @@ import numpy as np
 from typing import List, Dict, Union
 
 import modulus
-from modulus.sym.hydra import to_absolute_path, instantiate_arch
+from modulus.hydra import to_absolute_path, instantiate_arch
 
 import modulus
 from modulus.hydra import to_absolute_path, instantiate_arch, ModulusConfig
