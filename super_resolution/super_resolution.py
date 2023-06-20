@@ -310,6 +310,9 @@ def run(cfg: ModulusConfig) -> None:
         dataset_seed=123,
     )
 
+    np.save("datasets/jhtdb_training/invar",invar)
+    np.save("datasets/jhtdb_training/outvar",outvar)
+
     invar_valid, outvar_valid = make_jhtdb_dataset(
         nr_samples=cfg.custom.jhtdb.n_valid,
         domain_size=cfg.custom.jhtdb.domain_size,
