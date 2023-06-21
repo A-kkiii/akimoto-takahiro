@@ -1,0 +1,63 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    0;
+    object      p;
+}
+dimensions [1 -1 -2 0 0 0 0];
+internalField uniform 101325.0;
+boundaryField
+{
+    ceilling_walls
+    {
+        type calculated;
+        value uniform 101325.0;
+    }
+    damper
+    {
+        type calculated;
+        value uniform 101325.0;
+    }
+    floor
+    {
+        type calculated;
+        value uniform 101325.0;
+    }
+    obj1
+    {
+        type calculated;
+        value uniform 101325.0;
+    }
+    obj2
+    {
+        type calculated;
+        value uniform 101325.0;
+    }
+    steel_partition
+    {
+        type calculated;
+        value uniform 101325.0;
+    }
+    vinyl_sheet
+    {
+        type calculated;
+        value uniform 101325.0;
+    }
+    duct
+    {
+        type calculated;
+        value uniform 101325.0;
+    }
+    window
+    {
+        type calculated;
+        value uniform 101325.0;
+    }
+    defaultFaces
+    {
+        type calculated;
+        value uniform 101325.0;
+    }
+}

@@ -1,0 +1,80 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "cleanroom-akimoto"
+  labels:
+    app: "cleanroom"
+spec:
+  suspend: false
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 60000000
+  template:
+    metadata:
+      labels:
+        app: "cleanroom"
+    spec:
+      restartPolicy: Never
+
+      initContainers:
+        - image: alpine/git
+          name: git
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "mkdir -p /app && \
+              git clone git@github.com:A-kkiii/akimoto-takahiro.git /app && \
+              cd /app && \
+              git submodule update --init --recursive && \
+              git checkout main && \
+              ls"
+
+          volumeMounts:
+            - name: secret-volume
+              mountPath: "/root/.ssh/"
+
+            - name: app
+              mountPath: /app
+
+      containers:
+        - name: openfoam
+          image: openfoam/openfoam10-paraview510
+          workingDir: /app
+          command:
+            - "/bin/bash"
+            - "-c"
+            - "source /opt/openfoam10/etc/bashrc && \
+              mkdir -p $FOAM_RUN && \
+              cp -r examples/clean_room/openfoam/steady $FOAM_RUN && \
+              cp -r stls/clean_room_meter $FOAM_RUN/steady/constant/triSurface && \
+              cd $FOAM_RUN/steady && \
+              touch pv.foam && \
+              blockMesh && \
+              surfaceFeatures && \
+              locationInMesh (-2.5 6.0 1.0); && \
+              buoyantFoam && \
+              scp -r . /var/data/openfoam/steady/
+              "
+          resources:
+            limits:
+              nvidia.com/gpu: 0
+          volumeMounts:
+            - name: app
+              mountPath: /app
+            - name: nas
+              mountPath: /var/data/
+            - name: dsh
+              mountPath: /dev/shm
+
+      volumes:
+        - name: app
+        - name: nas
+          nfs:
+            server: asustor-nas.tailf3ce6.ts.net
+            path: /volume1/akimoto-takahiro
+        - name: dsh
+          emptyDir:
+            medium: Memory
+        - name: secret-volume
+          secret:
+            secretName: ssh-key-secret
+            defaultMode: 0600
