@@ -1,0 +1,76 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "modulus-super-resolution-takimoto"
+  labels:
+    app: "modulus"
+spec:
+  backoffLimit: 0 # デフォルト値は6です。
+  ttlSecondsAfterFinished: 259200 # 停止したジョブを259200秒(3日)後に削除するという意味です。
+  template:
+    metadata:
+      labels:
+        app: "modulus"
+
+    spec:
+      restartPolicy: Never
+
+      initContainers:
+        - image: alpine/git
+          name: git
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "mkdir -p /app && \
+              git clone git@github.com:A-kkiii/akimoto-takahiro.git /app && \
+              cd /app && \
+              git submodule update --init --recursive && \
+              git checkout main && \
+              ls"
+
+          volumeMounts:
+            - name: secret-volume
+              mountPath: "/root/.ssh/"
+
+            - name: app
+              mountPath: /app # app以下に、git cloneします
+
+      containers:
+        - name: modulus
+          image: nvcr.io/nvidia/modulus/modulus:22.09
+          workingDir: /app
+          command: # ここにコマンドを記述します。
+            - "/bin/sh"
+            - "-c"
+            - "cd super_resolution && \
+              pip install pyJHTDB && \
+              python super_resolution.py && \
+              mkdir -p /var/data/modulus && \
+              cp -r outputs /var/data/modulus/super_resolution
+              cp -r datasets/jhtdb_training /var/data/modulus/super_resolution
+              cp -r  /var/data/modulus/akimoto-takahiro/super_resolution
+              "
+          resources:
+            limits:
+              nvidia.com/gpu: 1 # GPUが欲しい人はここに書きます。
+          volumeMounts:
+            - name: app
+              mountPath: /app # app以下に、git cloneします
+            - name: nas # オフィスのファイルサーバーの/var/nfs/dataをコンテナ内の/var/data/にマウントします。
+              mountPath: "/var/data/"
+            - name: dsh
+              mountPath: /dev/shm # おまじないです。これがないとOOMが起きます。
+
+      volumes:
+        - name: app
+        - name: nas
+          nfs:
+            server: asustor-nas.tailf3ce6.ts.net
+            path: /volume1/akimoto-takahiro
+        - name: dsh
+          emptyDir:
+            medium: Memory
+        - name: secret-volume
+          secret:
+            secretName: ssh-key-secret
+            defaultMode: 0600
