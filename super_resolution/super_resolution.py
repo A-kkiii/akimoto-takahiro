@@ -363,4 +363,5 @@ def run(cfg: ModulusConfig) -> None:
 
 
 if __name__ == "__main__":
+    print(OK)
     run()
